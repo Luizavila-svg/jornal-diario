@@ -3,6 +3,9 @@ import re
 import json
 import feedparser
 from datetime import date, datetime
+from zoneinfo import ZoneInfo
+
+TZ_BR = ZoneInfo("America/Sao_Paulo")
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from anthropic import Anthropic
 
@@ -106,7 +109,7 @@ def data_formatada_pt(d: date) -> str:
 
 
 def get_resumos_hoje():
-    hoje = date.today()
+    hoje = datetime.now(TZ_BR).date()
     hoje_iso = hoje.isoformat()
 
     if os.path.exists(CACHE_FILE):
@@ -135,7 +138,7 @@ def get_resumos_hoje():
             resultados[nome] = secoes
     resumos = {nome: resultados[nome] for nome in FEEDS}
 
-    gerado_em = datetime.now().strftime("%d/%m/%Y às %H:%M")
+    gerado_em = datetime.now(TZ_BR).strftime("%d/%m/%Y às %H:%M")
 
     try:
         with open(CACHE_FILE, "w") as f:
