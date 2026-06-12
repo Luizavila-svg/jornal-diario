@@ -1,11 +1,16 @@
 import os
 from flask import Flask, render_template
 from dotenv import load_dotenv
+from apscheduler.schedulers.background import BackgroundScheduler
 from jornal import get_resumos_hoje
 
 load_dotenv()
 
 app = Flask(__name__)
+
+scheduler = BackgroundScheduler(timezone="America/Sao_Paulo")
+scheduler.add_job(get_resumos_hoje, "cron", hour=6, minute=0)
+scheduler.start()
 
 
 @app.route("/")
