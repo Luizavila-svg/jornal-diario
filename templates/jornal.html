@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diário de Hoje — {{ data_formatada }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #c9b99a;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 28px,
+          rgba(0,0,0,0.03) 28px,
+          rgba(0,0,0,0.03) 29px
+        );
+      min-height: 100vh;
+      padding: 24px 12px 48px;
+      font-family: 'IM Fell English', Georgia, 'Times New Roman', serif;
+      color: #111007;
+    }
+
+    /* ── Folha de jornal ─────────────────────────────── */
+    .folha {
+      max-width: 1080px;
+      margin: 0 auto;
+      background: #f9f4e3;
+      border: 1px solid #8b7a5a;
+      padding: 36px 52px 44px;
+      box-shadow:
+        4px 6px 28px rgba(0,0,0,0.35),
+        -2px 3px 14px rgba(0,0,0,0.15),
+        inset 0 0 60px rgba(0,0,0,0.04);
+      position: relative;
+    }
+
+    /* Marca d'água de "papel velho" */
+    .folha::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 80%, rgba(180,150,80,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(160,130,60,0.07) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* ── Cabeçalho / Masthead ──────────────────────────── */
+    .masthead {
+      text-align: center;
+      border-bottom: 5px double #1a1209;
+      padding-bottom: 14px;
+      margin-bottom: 0;
+    }
+
+    .masthead-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #4a3f2a;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #8b7a5a;
+      padding-bottom: 6px;
+    }
+
+    .masthead-titulo {
+      font-family: 'UnifrakturMaguntia', 'Times New Roman', serif;
+      font-size: clamp(2.6rem, 7vw, 5.2rem);
+      line-height: 1;
+      letter-spacing: 0.04em;
+      color: #0d0b05;
+      margin: 12px 0 8px;
+    }
+
+    .masthead-lema {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      color: #4a3f2a;
+      margin-bottom: 10px;
+    }
+
+    .masthead-data {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      border-top: 1px solid #8b7a5a;
+      border-bottom: 1px solid #8b7a5a;
+      padding: 4px 20px;
+      color: #2a2010;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    /* ── Aviso gerado por IA ───────────────────────────── */
+    .aviso-ia {
+      text-align: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: #6b5a3a;
+      text-transform: uppercase;
+      padding: 6px 0 8px;
+      border-bottom: 1px solid #8b7a5a;
+      margin-bottom: 0;
+    }
+
+    /* ── Grade principal ───────────────────────────────── */
+    .grade-jornais {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 0;
+    }
+
+    /* ── Célula de jornal ──────────────────────────────── */
+    .celula {
+      padding: 22px 24px 24px;
+      border-right: 1px solid #8b7a5a;
+      border-bottom: 1px solid #8b7a5a;
+    }
+
+    .celula:nth-child(even) { border-right: none; }
+    .celula:nth-child(3),
+    .celula:nth-child(4)    { border-bottom: none; }
+
+    /* ── Cabeçalho de seção ────────────────────────────── */
+    .secao-cabecalho {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .secao-nome {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(1rem, 2vw, 1.45rem);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #0d0b05;
+      border-top: 3px solid #1a1209;
+      border-bottom: 1px solid #1a1209;
+      padding: 7px 4px;
+      display: block;
+    }
+
+    .secao-edicao {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #6b5a3a;
+      font-style: italic;
+      margin-top: 5px;
+    }
+
+    /* ── Corpo do texto ────────────────────────────────── */
+    .secao-corpo {
+      font-size: 0.88rem;
+      line-height: 1.72;
+      text-align: justify;
+      hyphens: auto;
+      color: #1a1209;
+    }
+
+    .secao-corpo p + p {
+      margin-top: 10px;
+    }
+
+    /* Drop cap na primeira letra do primeiro parágrafo */
+    .secao-corpo p:first-child::first-letter {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 3.4rem;
+      float: left;
+      line-height: 0.78;
+      margin: 6px 7px 0 0;
+      color: #0d0b05;
+    }
+
+    /* ── Rodapé ────────────────────────────────────────── */
+    .rodape {
+      text-align: center;
+      margin-top: 28px;
+      padding-top: 12px;
+      border-top: 3px double #1a1209;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      color: #6b5a3a;
+      line-height: 1.8;
+      text-transform: uppercase;
+    }
+
+    .rodape strong {
+      color: #2a2010;
+    }
+
+    /* ── Mensagem de erro por jornal ───────────────────── */
+    .erro-jornal {
+      font-style: italic;
+      color: #7a6040;
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    /* ── Responsivo ────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .folha { padding: 20px 18px 30px; }
+      .grade-jornais { grid-template-columns: 1fr; }
+      .celula { border-right: none; }
+      .celula:nth-child(3) { border-bottom: 1px solid #8b7a5a; }
+      .celula:nth-child(4) { border-bottom: none; }
+      .masthead-topo { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="folha">
+
+    <!-- ═══ MASTHEAD ═══════════════════════════════════ -->
+    <header class="masthead">
+      <div class="masthead-topo">
+        <span>Resumo editorial diário</span>
+        <span>Brasil &amp; Mundo</span>
+        <span>Gerado por inteligência artificial</span>
+      </div>
+
+      <h1 class="masthead-titulo">Diário de Hoje</h1>
+      <p class="masthead-lema">O que os grandes jornais publicaram nesta edição</p>
+      <span class="masthead-data">{{ data_formatada }}</span>
+    </header>
+
+    <p class="aviso-ia">
+      Baseado nos RSS feeds de hoje &mdash; O Globo &bull; Folha de S.Paulo &bull; Estadão &bull; The New York Times
+    </p>
+
+    <!-- ═══ GRADE DE JORNAIS ════════════════════════════ -->
+    <div class="grade-jornais">
+      {% for nome, resumo in resumos.items() %}
+      <div class="celula">
+        <div class="secao-cabecalho">
+          <span class="secao-nome">{{ nome }}</span>
+          <p class="secao-edicao">Edição de hoje &bull; Resumo editorial</p>
+        </div>
+
+        <div class="secao-corpo">
+          {% if resumo.startswith("Não foi") or resumo.startswith("Erro") %}
+            <p class="erro-jornal">{{ resumo }}</p>
+          {% else %}
+            {% for paragrafo in resumo.split('\n') %}
+              {% if paragrafo.strip() %}
+                <p>{{ paragrafo.strip() }}</p>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- ═══ RODAPÉ ══════════════════════════════════════ -->
+    <footer class="rodape">
+      <p>
+        Gerado automaticamente em <strong>{{ gerado_em }}</strong> com base nos RSS feeds oficiais dos jornais listados.
+      </p>
+      <p>
+        O conteúdo reflete as publicações mais recentes de cada veículo &mdash;
+        atualizado diariamente às 7h (horário de Brasília).
+      </p>
+    </footer>
+
+  </div><!-- /folha -->
+</body>
+</html>

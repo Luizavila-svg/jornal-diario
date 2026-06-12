@@ -1,0 +1,18 @@
+name: Gerar Jornal Diário
+
+on:
+  schedule:
+    # 7h BRT (UTC-3) = 10h UTC — segunda a sábado
+    - cron: '0 10 * * 1-6'
+  workflow_dispatch:
+
+jobs:
+  pre-aquecer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Pré-aquecer geração do jornal
+        run: |
+          curl -f --max-time 240 --retry 2 --retry-delay 10 \
+            -o /dev/null -w "HTTP %{http_code} em %{time_total}s\n" \
+            "${{ secrets.RAILWAY_URL }}"

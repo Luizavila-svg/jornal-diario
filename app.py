@@ -1,0 +1,23 @@
+import os
+from flask import Flask, render_template
+from dotenv import load_dotenv
+from jornal import get_resumos_hoje
+
+load_dotenv()
+
+app = Flask(__name__)
+
+
+@app.route("/")
+def jornal():
+    try:
+        resumos, gerado_em, data_formatada = get_resumos_hoje()
+    except Exception as e:
+        app.logger.exception(f"Erro ao gerar jornal: {e}")
+        return "Erro ao gerar o jornal. Tente novamente em instantes.", 500
+    return render_template("jornal.html", resumos=resumos, gerado_em=gerado_em, data_formatada=data_formatada)
+
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8080))
+    app.run(debug=False, port=port)
