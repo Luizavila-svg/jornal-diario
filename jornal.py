@@ -3,6 +3,7 @@ import re
 import json
 import feedparser
 from datetime import date, datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from anthropic import Anthropic
 
 CACHE_FILE = "jornal_cache.json"
@@ -117,16 +118,22 @@ def get_resumos_hoje():
         except Exception:
             pass
 
-    resumos = {}
-    for nome, config in FEEDS.items():
+    def processar_feed(nome, config):
         try:
             artigos = buscar_artigos(config["url"])
             if not artigos:
-                resumos[nome] = [{"titulo": "Indisponível", "conteudo": "Não foi possível carregar as notícias deste jornal hoje.", "grafico": None}]
-            else:
-                resumos[nome] = resumir_jornal(nome, artigos, traduzir=config["traduzir"])
+                return nome, [{"titulo": "Indisponível", "conteudo": "Não foi possível carregar as notícias deste jornal hoje.", "grafico": None}]
+            return nome, resumir_jornal(nome, artigos, traduzir=config["traduzir"])
         except Exception:
-            resumos[nome] = [{"titulo": "Indisponível", "conteudo": "Não foi possível carregar o conteúdo deste jornal hoje.", "grafico": None}]
+            return nome, [{"titulo": "Indisponível", "conteudo": "Não foi possível carregar o conteúdo deste jornal hoje.", "grafico": None}]
+
+    resultados = {}
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {executor.submit(processar_feed, nome, config): nome for nome, config in FEEDS.items()}
+        for future in as_completed(futures):
+            nome, secoes = future.result()
+            resultados[nome] = secoes
+    resumos = {nome: resultados[nome] for nome in FEEDS}
 
     gerado_em = datetime.now().strftime("%d/%m/%Y às %H:%M")
 
