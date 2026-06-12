@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,7 +42,6 @@
       position: relative;
     }
 
-    /* Marca d'água de "papel velho" */
     .folha::before {
       content: '';
       position: absolute;
@@ -102,7 +102,7 @@
       margin-bottom: 2px;
     }
 
-    /* ── Aviso gerado por IA ───────────────────────────── */
+    /* ── Aviso IA ─────────────────────────────────────── */
     .aviso-ia {
       text-align: center;
       font-size: 0.65rem;
@@ -133,10 +133,10 @@
     .celula:nth-child(3),
     .celula:nth-child(4)    { border-bottom: none; }
 
-    /* ── Cabeçalho de seção ────────────────────────────── */
+    /* ── Cabeçalho de seção do jornal ─────────────────── */
     .secao-cabecalho {
       text-align: center;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
     .secao-nome {
@@ -161,6 +161,41 @@
       margin-top: 5px;
     }
 
+    /* ── Bloco de tópico ───────────────────────────────── */
+    .secao-bloco {
+      padding: 14px 0 12px;
+      border-bottom: 1px solid rgba(139, 122, 90, 0.35);
+    }
+
+    .secao-bloco:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .secao-bloco--alt {
+      background: rgba(139, 122, 90, 0.06);
+      margin: 0 -24px;
+      padding: 14px 24px 12px;
+    }
+
+    .secao-bloco--alt:last-child {
+      padding-bottom: 24px;
+      margin-bottom: -24px;
+    }
+
+    /* ── Título do tópico ──────────────────────────────── */
+    .secao-titulo-bloco {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1a1209;
+      border-bottom: 1px solid rgba(26, 18, 9, 0.18);
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+
     /* ── Corpo do texto ────────────────────────────────── */
     .secao-corpo {
       font-size: 0.88rem;
@@ -174,8 +209,7 @@
       margin-top: 10px;
     }
 
-    /* Drop cap na primeira letra do primeiro parágrafo */
-    .secao-corpo p:first-child::first-letter {
+    .secao-bloco--first .secao-corpo p:first-child::first-letter {
       font-family: 'Playfair Display', serif;
       font-weight: 900;
       font-size: 3.4rem;
@@ -183,6 +217,28 @@
       line-height: 0.78;
       margin: 6px 7px 0 0;
       color: #0d0b05;
+    }
+
+    /* ── Gráfico ───────────────────────────────────────── */
+    .chart-container {
+      margin: 14px 0 4px;
+      background: rgba(255,255,255,0.45);
+      border: 1px solid rgba(139, 122, 90, 0.3);
+      border-radius: 2px;
+      padding: 10px 10px 6px;
+    }
+
+    .chart-container canvas {
+      max-height: 180px;
+    }
+
+    /* ── Mensagem de erro por jornal ───────────────────── */
+    .erro-jornal {
+      font-style: italic;
+      color: #7a6040;
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 20px 0;
     }
 
     /* ── Rodapé ────────────────────────────────────────── */
@@ -202,15 +258,6 @@
       color: #2a2010;
     }
 
-    /* ── Mensagem de erro por jornal ───────────────────── */
-    .erro-jornal {
-      font-style: italic;
-      color: #7a6040;
-      font-size: 0.85rem;
-      text-align: center;
-      padding: 20px 0;
-    }
-
     /* ── Responsivo ────────────────────────────────────── */
     @media (max-width: 700px) {
       .folha { padding: 20px 18px 30px; }
@@ -219,6 +266,8 @@
       .celula:nth-child(3) { border-bottom: 1px solid #8b7a5a; }
       .celula:nth-child(4) { border-bottom: none; }
       .masthead-topo { flex-direction: column; gap: 4px; }
+      .secao-bloco--alt { margin: 0 -18px; padding-left: 18px; padding-right: 18px; }
+      .secao-bloco--alt:last-child { margin-bottom: -30px; padding-bottom: 30px; }
     }
   </style>
 </head>
@@ -245,24 +294,84 @@
 
     <!-- ═══ GRADE DE JORNAIS ════════════════════════════ -->
     <div class="grade-jornais">
-      {% for nome, resumo in resumos.items() %}
+      {% set ns = namespace(chart_id=0) %}
+      {% for nome, secoes in resumos.items() %}
       <div class="celula">
         <div class="secao-cabecalho">
           <span class="secao-nome">{{ nome }}</span>
           <p class="secao-edicao">Edição de hoje &bull; Resumo editorial</p>
         </div>
 
-        <div class="secao-corpo">
-          {% if resumo.startswith("Não foi") or resumo.startswith("Erro") %}
-            <p class="erro-jornal">{{ resumo }}</p>
-          {% else %}
-            {% for paragrafo in resumo.split('\n') %}
-              {% if paragrafo.strip() %}
-                <p>{{ paragrafo.strip() }}</p>
-              {% endif %}
-            {% endfor %}
+        {% for secao in secoes %}
+        {% set bloco_classes = "secao-bloco" %}
+        {% if loop.first %}{% set bloco_classes = bloco_classes ~ " secao-bloco--first" %}{% endif %}
+        {% if loop.index is even %}{% set bloco_classes = bloco_classes ~ " secao-bloco--alt" %}{% endif %}
+
+        <div class="{{ bloco_classes }}">
+          <h3 class="secao-titulo-bloco">{{ secao.titulo }}</h3>
+
+          <div class="secao-corpo">
+            {% if secao.conteudo.startswith("Não foi") or secao.conteudo.startswith("Erro") %}
+              <p class="erro-jornal">{{ secao.conteudo }}</p>
+            {% else %}
+              {% for paragrafo in secao.conteudo.split('\n') %}
+                {% if paragrafo.strip() %}
+                  <p>{{ paragrafo.strip() }}</p>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          {% if secao.grafico %}
+          {% set ns.chart_id = ns.chart_id + 1 %}
+          <div class="chart-container">
+            <canvas id="chart-{{ ns.chart_id }}"></canvas>
+          </div>
+          <script>
+          (function() {
+            var d = {{ secao.grafico | tojson }};
+            new Chart(document.getElementById('chart-{{ ns.chart_id }}'), {
+              type: d.tipo || 'bar',
+              data: {
+                labels: d.labels,
+                datasets: [{
+                  label: d.titulo,
+                  data: d.valores,
+                  backgroundColor: 'rgba(74,63,42,0.62)',
+                  borderColor: 'rgba(74,63,42,0.9)',
+                  borderWidth: 1
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                  legend: { display: false },
+                  title: {
+                    display: true,
+                    text: d.titulo,
+                    color: '#2a2010',
+                    font: { size: 11, family: "'Playfair Display', serif" }
+                  }
+                },
+                scales: {
+                  y: {
+                    grid: { color: 'rgba(0,0,0,0.07)' },
+                    ticks: { color: '#4a3f2a', font: { size: 9 } }
+                  },
+                  x: {
+                    grid: { display: false },
+                    ticks: { color: '#4a3f2a', font: { size: 9 } }
+                  }
+                }
+              }
+            });
+          })();
+          </script>
           {% endif %}
         </div>
+        {% endfor %}
+
       </div>
       {% endfor %}
     </div>
