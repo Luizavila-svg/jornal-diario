@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 
 @app.route("/")
+@app.route("/jornal")
 def jornal():
     try:
         resumos, gerado_em, data_formatada = get_resumos_hoje()
