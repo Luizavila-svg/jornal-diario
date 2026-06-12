@@ -1,4 +1,3 @@
-import os
 import re
 import json
 import feedparser
@@ -9,8 +8,8 @@ TZ_BR = ZoneInfo("America/Sao_Paulo")
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from anthropic import Anthropic
 
-CACHE_FILE = "jornal_cache.json"
 CACHE_VERSION = "v2"
+_cache: dict = {}
 
 FEEDS = {
     "O Globo": {
@@ -112,14 +111,8 @@ def get_resumos_hoje():
     hoje = datetime.now(TZ_BR).date()
     hoje_iso = hoje.isoformat()
 
-    if os.path.exists(CACHE_FILE):
-        try:
-            with open(CACHE_FILE) as f:
-                cache = json.load(f)
-            if cache.get("data") == hoje_iso and cache.get("versao") == CACHE_VERSION:
-                return cache["resumos"], cache["gerado_em"], data_formatada_pt(hoje)
-        except Exception:
-            pass
+    if (_cache.get("data") == hoje_iso and _cache.get("versao") == CACHE_VERSION):
+        return _cache["resumos"], _cache["gerado_em"], data_formatada_pt(hoje)
 
     def processar_feed(nome, config):
         try:
@@ -140,15 +133,6 @@ def get_resumos_hoje():
 
     gerado_em = datetime.now(TZ_BR).strftime("%d/%m/%Y às %H:%M")
 
-    try:
-        with open(CACHE_FILE, "w") as f:
-            json.dump(
-                {"data": hoje_iso, "versao": CACHE_VERSION, "resumos": resumos, "gerado_em": gerado_em},
-                f,
-                ensure_ascii=False,
-                indent=2,
-            )
-    except Exception:
-        pass
+    _cache.update({"data": hoje_iso, "versao": CACHE_VERSION, "resumos": resumos, "gerado_em": gerado_em})
 
     return resumos, gerado_em, data_formatada_pt(hoje)
