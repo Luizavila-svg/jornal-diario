@@ -3,12 +3,12 @@ import json
 import feedparser
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
-
-TZ_BR = ZoneInfo("America/Sao_Paulo")
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from anthropic import Anthropic
 
-CACHE_VERSION = "v2"
+TZ_BR = ZoneInfo("America/Sao_Paulo")
+
+CACHE_VERSION = "v3"
 _cache: dict = {}
 
 FEEDS = {
@@ -44,6 +44,13 @@ def _limpar_html(texto):
     return re.sub(r"<[^>]+>", "", texto or "").strip()
 
 
+def _parse_json_response(text):
+    text = text.strip()
+    text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.MULTILINE)
+    text = re.sub(r"\s*```$", "", text, flags=re.MULTILINE)
+    return text.strip()
+
+
 def buscar_artigos(feed_url, max_items=20):
     feed = feedparser.parse(feed_url)
     artigos = []
@@ -64,32 +71,32 @@ def resumir_jornal(nome, artigos, traduzir=False):
     instrucao = "Traduza para o português do Brasil. " if traduzir else ""
 
     prompt = (
-        f"Você é um editor experiente de jornal impresso. {instrucao}"
-        f"Com base nas notícias abaixo do jornal {nome} publicadas hoje, "
-        "escreva um resumo editorial dividido em até 5 seções temáticas. "
-        "Cada seção deve ter de 8 a 12 linhas de texto em parágrafos fluidos, "
-        "linguagem jornalística clara e objetiva, sem listas ou bullet points. "
-        "Reescreva os títulos como narrativa jornalística.\n\n"
+        f"Você é um editor sênior e analista do jornal {nome}. {instrucao}"
+        "Com base nas notícias abaixo publicadas hoje, produza um resumo editorial "
+        "dividido em até 5 seções temáticas.\n\n"
+        "Para cada seção:\n"
+        "• Texto jornalístico fluido de 8-12 linhas em parágrafos (sem listas ou bullets)\n"
+        "• Campo 'analise' com: riscos identificados, sinais relevantes (econômicos/políticos/sociais) "
+        "e perspectiva analítica (o que especialistas e analistas tipicamente argumentam sobre esse tipo de evento)\n\n"
         "Retorne APENAS JSON válido, sem texto antes ou depois, sem blocos de código:\n"
-        '{"secoes":[{"titulo":"Nome do Tema","conteudo":"Parágrafo 1.\\n\\nParágrafo 2.","grafico":null}]}\n\n'
-        "IMPORTANTE: Se e somente se uma seção mencionar dados numéricos econômicos reais "
-        "(ex: inflação X%, PIB cresceu Y%, dólar a R$Z, Ibovespa em N pontos, juros X% a.a., desemprego X%), "
+        '{"secoes":[{"titulo":"Nome do Tema","conteudo":"Parágrafo 1.\\n\\nParágrafo 2.",'
+        '"analise":{"riscos":"Riscos identificados...","sinais":"Indicadores e tendências relevantes...",'
+        '"perspectiva":"Visão analítica e contexto especializado..."},"grafico":null}]}\n\n'
+        "GRÁFICO: Se e somente se uma seção mencionar dados numéricos REAIS "
+        "(ex: inflação X%, PIB Y%, dólar R$Z, Ibovespa N pontos, juros X% a.a., desemprego X%), "
         "substitua null por:\n"
-        '{"titulo":"Título do Gráfico","tipo":"bar","labels":["Período A","Período B"],"valores":[1.2,3.4]}\n'
+        '{"titulo":"Título do Gráfico","tipo":"bar|line|pie","labels":["Período A","Período B"],"valores":[1.2,3.4]}\n'
         "Use apenas dados numéricos presentes nas notícias. Não invente dados.\n\n"
         f"Notícias:\n{conteudo}"
     )
 
     resposta = client.messages.create(
-        model="claude-haiku-4-5",
-        max_tokens=3000,
+        model="claude-haiku-4-5-20251001",
+        max_tokens=3500,
         messages=[{"role": "user", "content": prompt}],
     )
 
-    text = resposta.content[0].text.strip()
-    text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.MULTILINE)
-    text = re.sub(r"\s*```$", "", text, flags=re.MULTILINE)
-    text = text.strip()
+    text = _parse_json_response(resposta.content[0].text)
 
     try:
         data = json.loads(text)
@@ -99,7 +106,52 @@ def resumir_jornal(nome, artigos, traduzir=False):
     except (json.JSONDecodeError, AttributeError, ValueError):
         pass
 
-    return [{"titulo": "Resumo", "conteudo": text, "grafico": None}]
+    return [{"titulo": "Resumo", "conteudo": text, "analise": None, "grafico": None}]
+
+
+def gerar_destaque_dia(artigos_por_fonte):
+    """Analisa manchetes de todos os jornais e identifica os 3 grandes destaques do dia."""
+    todas = []
+    for fonte, artigos in artigos_por_fonte.items():
+        for a in artigos[:12]:
+            todas.append(f"[{fonte}] {a}")
+
+    if not todas:
+        return []
+
+    conteudo = "\n".join(todas)
+
+    prompt = (
+        "Você é um editor-chefe e analista sênior examinando as manchetes dos 4 principais jornais do dia.\n"
+        "Identifique os 3 assuntos de maior destaque — priorizando histórias que aparecem em múltiplas "
+        "publicações ou têm impacto significativo para o Brasil e o mundo.\n\n"
+        "Para cada assunto forneça:\n"
+        "• 'titulo': manchete forte e impactante (até 12 palavras)\n"
+        "• 'resumo': análise jornalística abrangente em 2-3 parágrafos fluidos, citando as diferentes perspectivas\n"
+        "• 'analise_especializada': síntese do que economistas, cientistas políticos ou especialistas do setor "
+        "argumentam sobre esse tipo de evento — baseado em frameworks analíticos e precedentes históricos\n"
+        "• 'riscos': principais riscos e preocupações identificados a curto e médio prazo\n"
+        "• 'sinais': indicadores-chave e tendências a monitorar nos próximos dias\n"
+        "• 'grafico': null, ou dados reais mencionados nas notícias\n\n"
+        "Retorne APENAS JSON válido, sem texto antes ou depois:\n"
+        '{"destaques":[{"titulo":"...","resumo":"Parágrafo 1...\\n\\nParágrafo 2...",'
+        '"analise_especializada":"...","riscos":"...","sinais":"...","grafico":null}]}\n\n'
+        "Para gráfico com dados reais:\n"
+        '{"titulo":"...","tipo":"bar|line|pie","labels":[...],"valores":[...]}\n\n'
+        f"Notícias:\n{conteudo}"
+    )
+
+    try:
+        resposta = Anthropic().messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=4000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = _parse_json_response(resposta.content[0].text)
+        data = json.loads(text)
+        return data.get("destaques", [])
+    except Exception:
+        return []
 
 
 def data_formatada_pt(d: date) -> str:
@@ -112,27 +164,58 @@ def get_resumos_hoje():
     hoje_iso = hoje.isoformat()
 
     if (_cache.get("data") == hoje_iso and _cache.get("versao") == CACHE_VERSION):
-        return _cache["resumos"], _cache["gerado_em"], data_formatada_pt(hoje)
+        return _cache["resumos"], _cache["destaques"], _cache["gerado_em"], data_formatada_pt(hoje)
 
-    def processar_feed(nome, config):
+    # Busca todos os feeds primeiro (em paralelo)
+    artigos_por_fonte = {}
+
+    def fetch_feed(nome, config):
         try:
-            artigos = buscar_artigos(config["url"])
-            if not artigos:
-                return nome, [{"titulo": "Indisponível", "conteudo": "Não foi possível carregar as notícias deste jornal hoje.", "grafico": None}]
+            return nome, buscar_artigos(config["url"])
+        except Exception:
+            return nome, []
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {executor.submit(fetch_feed, nome, config): nome for nome, config in FEEDS.items()}
+        for future in as_completed(futures):
+            nome, artigos = future.result()
+            artigos_por_fonte[nome] = artigos
+
+    # Gera resumos individuais + análise cruzada em paralelo
+    def processar_feed(nome, config):
+        artigos = artigos_por_fonte.get(nome, [])
+        if not artigos:
+            return nome, [{"titulo": "Indisponível", "conteudo": "Não foi possível carregar as notícias deste jornal hoje.", "analise": None, "grafico": None}]
+        try:
             return nome, resumir_jornal(nome, artigos, traduzir=config["traduzir"])
         except Exception:
-            return nome, [{"titulo": "Indisponível", "conteudo": "Não foi possível carregar o conteúdo deste jornal hoje.", "grafico": None}]
+            return nome, [{"titulo": "Indisponível", "conteudo": "Não foi possível carregar o conteúdo deste jornal hoje.", "analise": None, "grafico": None}]
 
     resultados = {}
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        futures = {executor.submit(processar_feed, nome, config): nome for nome, config in FEEDS.items()}
-        for future in as_completed(futures):
+    destaques = []
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures_resumos = {executor.submit(processar_feed, nome, config): nome for nome, config in FEEDS.items()}
+        future_destaque = executor.submit(gerar_destaque_dia, artigos_por_fonte)
+
+        for future in as_completed(futures_resumos):
             nome, secoes = future.result()
             resultados[nome] = secoes
-    resumos = {nome: resultados[nome] for nome in FEEDS}
 
+        try:
+            destaques = future_destaque.result()
+        except Exception:
+            destaques = []
+
+    resumos = {nome: resultados.get(nome, []) for nome in FEEDS}
     gerado_em = datetime.now(TZ_BR).strftime("%d/%m/%Y às %H:%M")
 
-    _cache.update({"data": hoje_iso, "versao": CACHE_VERSION, "resumos": resumos, "gerado_em": gerado_em})
+    _cache.update({
+        "data": hoje_iso,
+        "versao": CACHE_VERSION,
+        "resumos": resumos,
+        "destaques": destaques,
+        "gerado_em": gerado_em,
+    })
 
-    return resumos, gerado_em, data_formatada_pt(hoje)
+    return resumos, destaques, gerado_em, data_formatada_pt(hoje)

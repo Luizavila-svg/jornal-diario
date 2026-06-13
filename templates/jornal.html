@@ -6,39 +6,33 @@
   <title>Diário de Hoje — {{ data_formatada }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IM+Fell+English:ital@0;1&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #c9b99a;
+      background: #b5a48a;
       background-image:
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 28px,
-          rgba(0,0,0,0.03) 28px,
-          rgba(0,0,0,0.03) 29px
-        );
+        repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(0,0,0,0.025) 28px, rgba(0,0,0,0.025) 29px);
       min-height: 100vh;
-      padding: 24px 12px 48px;
-      font-family: 'IM Fell English', Georgia, 'Times New Roman', serif;
-      color: #111007;
+      padding: 24px 12px 60px;
+      font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+      color: #0d0b05;
     }
 
-    /* ── Folha de jornal ─────────────────────────────── */
+    /* ── Folha ─────────────────────────────────────────── */
     .folha {
-      max-width: 1080px;
+      max-width: 1140px;
       margin: 0 auto;
-      background: #f9f4e3;
-      border: 1px solid #8b7a5a;
-      padding: 36px 52px 44px;
+      background: #f8f3e2;
+      border: 1px solid #7a6a4a;
+      padding: 36px 48px 52px;
       box-shadow:
-        4px 6px 28px rgba(0,0,0,0.35),
+        6px 8px 32px rgba(0,0,0,0.4),
         -2px 3px 14px rgba(0,0,0,0.15),
-        inset 0 0 60px rgba(0,0,0,0.04);
+        inset 0 0 80px rgba(0,0,0,0.03);
       position: relative;
     }
 
@@ -46,16 +40,17 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at 20% 80%, rgba(180,150,80,0.08) 0%, transparent 60%),
-                  radial-gradient(ellipse at 80% 20%, rgba(160,130,60,0.07) 0%, transparent 50%);
+      background:
+        radial-gradient(ellipse at 15% 85%, rgba(170,140,70,0.09) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(150,120,50,0.07) 0%, transparent 50%);
       pointer-events: none;
     }
 
-    /* ── Cabeçalho / Masthead ──────────────────────────── */
+    /* ── Masthead ──────────────────────────────────────── */
     .masthead {
       text-align: center;
-      border-bottom: 5px double #1a1209;
-      padding-bottom: 14px;
+      border-bottom: 6px double #0d0b05;
+      padding-bottom: 12px;
       margin-bottom: 0;
     }
 
@@ -63,58 +58,190 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.68rem;
-      letter-spacing: 0.08em;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #4a3f2a;
+      color: #3a3020;
       margin-bottom: 10px;
-      border-bottom: 1px solid #8b7a5a;
+      border-bottom: 1px solid #7a6a4a;
       padding-bottom: 6px;
     }
 
     .masthead-titulo {
       font-family: 'UnifrakturMaguntia', 'Times New Roman', serif;
-      font-size: clamp(2.6rem, 7vw, 5.2rem);
+      font-size: clamp(2.8rem, 7.5vw, 5.6rem);
       line-height: 1;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       color: #0d0b05;
-      margin: 12px 0 8px;
+      margin: 10px 0 6px;
     }
 
     .masthead-lema {
       font-family: 'IM Fell English', serif;
       font-style: italic;
-      font-size: 0.85rem;
-      letter-spacing: 0.12em;
-      color: #4a3f2a;
+      font-size: 0.82rem;
+      letter-spacing: 0.14em;
+      color: #3a3020;
       margin-bottom: 10px;
     }
 
     .masthead-data {
       display: inline-block;
-      font-size: 0.78rem;
-      letter-spacing: 0.06em;
-      border-top: 1px solid #8b7a5a;
-      border-bottom: 1px solid #8b7a5a;
-      padding: 4px 20px;
-      color: #2a2010;
+      font-size: 0.75rem;
+      letter-spacing: 0.07em;
+      border-top: 1px solid #7a6a4a;
+      border-bottom: 1px solid #7a6a4a;
+      padding: 4px 22px;
+      color: #1a1505;
       text-transform: uppercase;
       margin-bottom: 2px;
     }
 
-    /* ── Aviso IA ─────────────────────────────────────── */
+    /* ── Aviso ─────────────────────────────────────────── */
     .aviso-ia {
       text-align: center;
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
-      color: #6b5a3a;
+      font-size: 0.63rem;
+      letter-spacing: 0.09em;
+      color: #5a4a2a;
       text-transform: uppercase;
-      padding: 6px 0 8px;
-      border-bottom: 1px solid #8b7a5a;
+      padding: 5px 0 8px;
+      border-bottom: 2px solid #0d0b05;
       margin-bottom: 0;
     }
 
-    /* ── Grade principal ───────────────────────────────── */
+    /* ═══════════════════════════════════════════════════
+       MANCHETE DO DIA
+    ═══════════════════════════════════════════════════ */
+    .manchete-secao {
+      border-bottom: 5px double #0d0b05;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .manchete-cabecalho {
+      text-align: center;
+      padding: 14px 0 10px;
+      border-bottom: 1px solid #0d0b05;
+      margin-bottom: 0;
+    }
+
+    .manchete-label {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.63rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #7a1010;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .manchete-titulo-secao {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #0d0b05;
+    }
+
+    .manchete-grade {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+
+    .destaque-col {
+      padding: 20px 22px 22px;
+      border-right: 1px solid #7a6a4a;
+      position: relative;
+    }
+
+    .destaque-col:last-child { border-right: none; }
+
+    .destaque-numero {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 2.2rem;
+      color: rgba(122,16,16,0.12);
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      line-height: 1;
+    }
+
+    .destaque-kicker {
+      font-size: 0.6rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #7a1010;
+      border-bottom: 1px solid #7a1010;
+      padding-bottom: 3px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .destaque-headline {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(1rem, 1.8vw, 1.3rem);
+      line-height: 1.25;
+      color: #0d0b05;
+      margin-bottom: 12px;
+      border-bottom: 3px solid #0d0b05;
+      padding-bottom: 8px;
+    }
+
+    .destaque-resumo {
+      font-size: 0.84rem;
+      line-height: 1.72;
+      text-align: justify;
+      hyphens: auto;
+      color: #1a1505;
+      margin-bottom: 12px;
+    }
+
+    .destaque-resumo p + p { margin-top: 8px; }
+
+    /* Caixas de análise */
+    .caixa {
+      border: 1px solid #7a6a4a;
+      margin: 10px 0;
+      padding: 9px 11px;
+      font-size: 0.79rem;
+      line-height: 1.55;
+    }
+
+    .caixa--especialista {
+      border-left: 4px solid #7a1010;
+      background: rgba(122,16,16,0.04);
+    }
+
+    .caixa--riscos {
+      border-left: 4px solid #1a3a6b;
+      background: rgba(26,58,107,0.04);
+    }
+
+    .caixa--sinais {
+      border-left: 4px solid #1f6b3a;
+      background: rgba(31,107,58,0.04);
+    }
+
+    .caixa-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .caixa--especialista .caixa-label { color: #7a1010; }
+    .caixa--riscos .caixa-label       { color: #1a3a6b; }
+    .caixa--sinais .caixa-label       { color: #1f6b3a; }
+
+    /* ═══════════════════════════════════════════════════
+       GRADE DE JORNAIS
+    ═══════════════════════════════════════════════════ */
     .grade-jornais {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -122,18 +249,17 @@
       margin-top: 0;
     }
 
-    /* ── Célula de jornal ──────────────────────────────── */
     .celula {
       padding: 22px 24px 24px;
-      border-right: 1px solid #8b7a5a;
-      border-bottom: 1px solid #8b7a5a;
+      border-right: 1px solid #7a6a4a;
+      border-bottom: 1px solid #7a6a4a;
     }
 
-    .celula:nth-child(even) { border-right: none; }
+    .celula:nth-child(even)  { border-right: none; }
     .celula:nth-child(3),
-    .celula:nth-child(4)    { border-bottom: none; }
+    .celula:nth-child(4)     { border-bottom: none; }
 
-    /* ── Cabeçalho de seção do jornal ─────────────────── */
+    /* Cabeçalho do jornal */
     .secao-cabecalho {
       text-align: center;
       margin-bottom: 16px;
@@ -142,40 +268,37 @@
     .secao-nome {
       font-family: 'Playfair Display', serif;
       font-weight: 900;
-      font-size: clamp(1rem, 2vw, 1.45rem);
-      letter-spacing: 0.14em;
+      font-size: clamp(1rem, 2vw, 1.4rem);
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: #0d0b05;
-      border-top: 3px solid #1a1209;
-      border-bottom: 1px solid #1a1209;
+      border-top: 4px solid #0d0b05;
+      border-bottom: 1px solid #0d0b05;
       padding: 7px 4px;
       display: block;
     }
 
     .secao-edicao {
-      font-size: 0.65rem;
+      font-size: 0.63rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #6b5a3a;
+      color: #5a4a2a;
       font-style: italic;
       margin-top: 5px;
     }
 
-    /* ── Bloco de tópico ───────────────────────────────── */
+    /* Bloco de tópico */
     .secao-bloco {
-      padding: 14px 0 12px;
-      border-bottom: 1px solid rgba(139, 122, 90, 0.35);
+      padding: 13px 0 11px;
+      border-bottom: 1px solid rgba(122, 106, 74, 0.35);
     }
 
-    .secao-bloco:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
+    .secao-bloco:last-child { border-bottom: none; padding-bottom: 0; }
 
     .secao-bloco--alt {
-      background: rgba(139, 122, 90, 0.06);
+      background: rgba(122, 106, 74, 0.055);
       margin: 0 -24px;
-      padding: 14px 24px 12px;
+      padding: 13px 24px 11px;
     }
 
     .secao-bloco--alt:last-child {
@@ -183,210 +306,335 @@
       margin-bottom: -24px;
     }
 
-    /* ── Título do tópico ──────────────────────────────── */
     .secao-titulo-bloco {
       font-family: 'Playfair Display', serif;
       font-weight: 700;
-      font-size: 0.95rem;
-      letter-spacing: 0.08em;
+      font-size: 0.9rem;
+      letter-spacing: 0.09em;
       text-transform: uppercase;
-      color: #1a1209;
-      border-bottom: 1px solid rgba(26, 18, 9, 0.18);
+      color: #0d0b05;
+      border-bottom: 1px solid rgba(13,11,5,0.2);
       padding-bottom: 5px;
-      margin-bottom: 10px;
+      margin-bottom: 9px;
     }
 
-    /* ── Corpo do texto ────────────────────────────────── */
     .secao-corpo {
-      font-size: 0.88rem;
-      line-height: 1.72;
+      font-size: 0.85rem;
+      line-height: 1.74;
       text-align: justify;
       hyphens: auto;
-      color: #1a1209;
+      color: #1a1505;
     }
 
-    .secao-corpo p + p {
-      margin-top: 10px;
-    }
+    .secao-corpo p + p { margin-top: 9px; }
 
     .secao-bloco--first .secao-corpo p:first-child::first-letter {
       font-family: 'Playfair Display', serif;
       font-weight: 900;
-      font-size: 3.4rem;
+      font-size: 3.2rem;
       float: left;
       line-height: 0.78;
       margin: 6px 7px 0 0;
       color: #0d0b05;
     }
 
-    /* ── Gráfico ───────────────────────────────────────── */
+    .caixa-analise-jornal {
+      margin-top: 10px;
+      border-top: 1px dashed rgba(122,106,74,0.5);
+      padding-top: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .caixa-analise-jornal .caixa {
+      font-size: 0.74rem;
+      margin: 0;
+    }
+
+    /* ── Gráficos ──────────────────────────────────────── */
     .chart-container {
-      margin: 14px 0 4px;
-      background: rgba(255,255,255,0.45);
-      border: 1px solid rgba(139, 122, 90, 0.3);
+      margin: 12px 0 4px;
+      background: rgba(255,255,255,0.5);
+      border: 1px solid rgba(122,106,74,0.3);
       border-radius: 2px;
       padding: 10px 10px 6px;
     }
 
-    .chart-container canvas {
-      max-height: 180px;
-    }
-
-    /* ── Mensagem de erro por jornal ───────────────────── */
-    .erro-jornal {
-      font-style: italic;
-      color: #7a6040;
-      font-size: 0.85rem;
-      text-align: center;
-      padding: 20px 0;
-    }
+    .chart-container canvas { max-height: 200px; }
 
     /* ── Rodapé ────────────────────────────────────────── */
     .rodape {
       text-align: center;
-      margin-top: 28px;
+      margin-top: 30px;
       padding-top: 12px;
-      border-top: 3px double #1a1209;
-      font-size: 0.7rem;
+      border-top: 4px double #0d0b05;
+      font-size: 0.68rem;
       letter-spacing: 0.06em;
-      color: #6b5a3a;
-      line-height: 1.8;
+      color: #5a4a2a;
+      line-height: 1.9;
       text-transform: uppercase;
     }
 
-    .rodape strong {
-      color: #2a2010;
+    .rodape strong { color: #1a1505; }
+
+    .ornamento {
+      text-align: center;
+      color: #7a6a4a;
+      font-size: 1.1rem;
+      letter-spacing: 0.3em;
+      margin: 6px 0;
     }
 
     /* ── Responsivo ────────────────────────────────────── */
-    @media (max-width: 700px) {
-      .folha { padding: 20px 18px 30px; }
+    @media (max-width: 800px) {
+      .folha { padding: 20px 18px 32px; }
+      .manchete-grade { grid-template-columns: 1fr; }
+      .destaque-col { border-right: none; border-bottom: 1px solid #7a6a4a; }
+      .destaque-col:last-child { border-bottom: none; }
       .grade-jornais { grid-template-columns: 1fr; }
       .celula { border-right: none; }
-      .celula:nth-child(3) { border-bottom: 1px solid #8b7a5a; }
+      .celula:nth-child(3) { border-bottom: 1px solid #7a6a4a; }
       .celula:nth-child(4) { border-bottom: none; }
-      .masthead-topo { flex-direction: column; gap: 4px; }
+      .masthead-topo { flex-direction: column; gap: 3px; }
       .secao-bloco--alt { margin: 0 -18px; padding-left: 18px; padding-right: 18px; }
-      .secao-bloco--alt:last-child { margin-bottom: -30px; padding-bottom: 30px; }
+      .caixa-analise-jornal { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
-  <div class="folha">
+<div class="folha">
 
-    <!-- ═══ MASTHEAD ═══════════════════════════════════ -->
-    <header class="masthead">
-      <div class="masthead-topo">
-        <span>Resumo editorial diário</span>
-        <span>Brasil &amp; Mundo</span>
-        <span>Gerado por inteligência artificial</span>
-      </div>
+  <!-- ═══ MASTHEAD ═══════════════════════════════════════ -->
+  <header class="masthead">
+    <div class="masthead-topo">
+      <span>Resumo editorial diário</span>
+      <span>Brasil &amp; Mundo</span>
+      <span>Gerado por inteligência artificial</span>
+    </div>
+    <h1 class="masthead-titulo">Diário de Hoje</h1>
+    <p class="masthead-lema">O que os grandes jornais publicaram nesta edição</p>
+    <span class="masthead-data">{{ data_formatada }}</span>
+  </header>
 
-      <h1 class="masthead-titulo">Diário de Hoje</h1>
-      <p class="masthead-lema">O que os grandes jornais publicaram nesta edição</p>
-      <span class="masthead-data">{{ data_formatada }}</span>
-    </header>
+  <p class="aviso-ia">
+    Baseado nos RSS feeds de hoje &mdash;
+    O Globo &bull; Folha de S.Paulo &bull; Estadão &bull; The New York Times
+  </p>
 
-    <p class="aviso-ia">
-      Baseado nos RSS feeds de hoje &mdash; O Globo &bull; Folha de S.Paulo &bull; Estadão &bull; The New York Times
-    </p>
+  <!-- ═══ MANCHETE DO DIA ════════════════════════════════ -->
+  {% if destaques %}
+  <section class="manchete-secao">
+    <div class="manchete-cabecalho">
+      <span class="manchete-label">Análise do dia</span>
+      <div class="manchete-titulo-secao">Manchete do Dia</div>
+    </div>
 
-    <!-- ═══ GRADE DE JORNAIS ════════════════════════════ -->
-    <div class="grade-jornais">
+    <div class="manchete-grade">
       {% set ns = namespace(chart_id=0) %}
-      {% for nome, secoes in resumos.items() %}
-      <div class="celula">
-        <div class="secao-cabecalho">
-          <span class="secao-nome">{{ nome }}</span>
-          <p class="secao-edicao">Edição de hoje &bull; Resumo editorial</p>
+      {% for d in destaques %}
+      <div class="destaque-col">
+        <span class="destaque-numero">{{ loop.index }}</span>
+        <span class="destaque-kicker">Destaque {{ loop.index }} de {{ destaques|length }}</span>
+        <h2 class="destaque-headline">{{ d.titulo }}</h2>
+
+        <div class="destaque-resumo">
+          {% for p in d.resumo.split('\n') %}
+            {% if p.strip() %}<p>{{ p.strip() }}</p>{% endif %}
+          {% endfor %}
         </div>
 
-        {% for secao in secoes %}
-        {% set bloco_classes = "secao-bloco" %}
-        {% if loop.first %}{% set bloco_classes = bloco_classes ~ " secao-bloco--first" %}{% endif %}
-        {% if loop.index is even %}{% set bloco_classes = bloco_classes ~ " secao-bloco--alt" %}{% endif %}
-
-        <div class="{{ bloco_classes }}">
-          <h3 class="secao-titulo-bloco">{{ secao.titulo }}</h3>
-
-          <div class="secao-corpo">
-            {% if secao.conteudo.startswith("Não foi") or secao.conteudo.startswith("Erro") %}
-              <p class="erro-jornal">{{ secao.conteudo }}</p>
-            {% else %}
-              {% for paragrafo in secao.conteudo.split('\n') %}
-                {% if paragrafo.strip() %}
-                  <p>{{ paragrafo.strip() }}</p>
-                {% endif %}
-              {% endfor %}
-            {% endif %}
-          </div>
-
-          {% if secao.grafico %}
-          {% set ns.chart_id = ns.chart_id + 1 %}
-          <div class="chart-container">
-            <canvas id="chart-{{ ns.chart_id }}"></canvas>
-          </div>
-          <script>
-          (function() {
-            var d = {{ secao.grafico | tojson }};
-            new Chart(document.getElementById('chart-{{ ns.chart_id }}'), {
-              type: d.tipo || 'bar',
-              data: {
-                labels: d.labels,
-                datasets: [{
-                  label: d.titulo,
-                  data: d.valores,
-                  backgroundColor: 'rgba(74,63,42,0.62)',
-                  borderColor: 'rgba(74,63,42,0.9)',
-                  borderWidth: 1
-                }]
-              },
-              options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                  legend: { display: false },
-                  title: {
-                    display: true,
-                    text: d.titulo,
-                    color: '#2a2010',
-                    font: { size: 11, family: "'Playfair Display', serif" }
-                  }
-                },
-                scales: {
-                  y: {
-                    grid: { color: 'rgba(0,0,0,0.07)' },
-                    ticks: { color: '#4a3f2a', font: { size: 9 } }
-                  },
-                  x: {
-                    grid: { display: false },
-                    ticks: { color: '#4a3f2a', font: { size: 9 } }
-                  }
-                }
-              }
-            });
-          })();
-          </script>
-          {% endif %}
+        {% if d.analise_especializada %}
+        <div class="caixa caixa--especialista">
+          <span class="caixa-label">Perspectiva Analítica</span>
+          {{ d.analise_especializada }}
         </div>
-        {% endfor %}
+        {% endif %}
 
+        {% if d.riscos %}
+        <div class="caixa caixa--riscos">
+          <span class="caixa-label">Riscos Identificados</span>
+          {{ d.riscos }}
+        </div>
+        {% endif %}
+
+        {% if d.sinais %}
+        <div class="caixa caixa--sinais">
+          <span class="caixa-label">Sinais a Monitorar</span>
+          {{ d.sinais }}
+        </div>
+        {% endif %}
+
+        {% if d.grafico %}
+        {% set ns.chart_id = ns.chart_id + 1 %}
+        <div class="chart-container">
+          <canvas id="chart-{{ ns.chart_id }}"></canvas>
+        </div>
+        <script>
+        (function() {
+          var d = {{ d.grafico | tojson }};
+          var tipo = d.tipo || 'bar';
+          var paleta = ['#1A3A6B','#B31B1B','#1F6B3A','#C8922A','#5A1F6B','#2A6B8B','#6B3A1A'];
+          var cfg = { type: tipo, data: { labels: d.labels }, options: { responsive: true, maintainAspectRatio: true } };
+
+          if (tipo === 'line') {
+            cfg.data.datasets = [{ label: d.titulo, data: d.valores,
+              borderColor: paleta[0], backgroundColor: 'rgba(26,58,107,0.1)',
+              borderWidth: 2, tension: 0.3, fill: true }];
+          } else if (tipo === 'pie' || tipo === 'doughnut') {
+            cfg.data.datasets = [{ label: d.titulo, data: d.valores,
+              backgroundColor: paleta.slice(0, d.valores.length),
+              borderColor: '#f8f3e2', borderWidth: 2 }];
+            cfg.options.plugins = { legend: { display: true, position: 'bottom',
+              labels: { font: { size: 10, family: "'Playfair Display', serif" }, color: '#2a2010' } },
+              title: { display: true, text: d.titulo, color: '#1a1505', font: { size: 11, family: "'Playfair Display', serif" } } };
+          } else {
+            cfg.data.datasets = [{ label: d.titulo, data: d.valores,
+              backgroundColor: paleta.slice(0, d.valores.length),
+              borderColor: paleta.slice(0, d.valores.length).map(c => c + 'dd'),
+              borderWidth: 1 }];
+          }
+
+          if (!cfg.options.plugins) {
+            cfg.options.plugins = {
+              legend: { display: false },
+              title: { display: true, text: d.titulo, color: '#1a1505', font: { size: 11, family: "'Playfair Display', serif" } }
+            };
+          }
+          cfg.options.scales = tipo === 'pie' || tipo === 'doughnut' ? {} : {
+            y: { grid: { color: 'rgba(0,0,0,0.07)' }, ticks: { color: '#4a3f2a', font: { size: 9 } } },
+            x: { grid: { display: false }, ticks: { color: '#4a3f2a', font: { size: 9 } } }
+          };
+
+          new Chart(document.getElementById('chart-{{ ns.chart_id }}'), cfg);
+        })();
+        </script>
+        {% endif %}
       </div>
       {% endfor %}
     </div>
+  </section>
+  {% endif %}
 
-    <!-- ═══ RODAPÉ ══════════════════════════════════════ -->
-    <footer class="rodape">
-      <p>
-        Gerado automaticamente em <strong>{{ gerado_em }}</strong> com base nos RSS feeds oficiais dos jornais listados.
-      </p>
-      <p>
-        O conteúdo reflete as publicações mais recentes de cada veículo &mdash;
-        atualizado diariamente às 7h (horário de Brasília).
-      </p>
-    </footer>
+  <!-- ═══ GRADE DE JORNAIS ══════════════════════════════ -->
+  <div class="grade-jornais">
+    {% for nome, secoes in resumos.items() %}
+    <div class="celula">
+      <div class="secao-cabecalho">
+        <span class="secao-nome">{{ nome }}</span>
+        <p class="secao-edicao">Edição de hoje &bull; Resumo editorial</p>
+      </div>
 
-  </div><!-- /folha -->
+      {% for secao in secoes %}
+      {% set bloco_classes = "secao-bloco" %}
+      {% if loop.first %}{% set bloco_classes = bloco_classes ~ " secao-bloco--first" %}{% endif %}
+      {% if loop.index is even %}{% set bloco_classes = bloco_classes ~ " secao-bloco--alt" %}{% endif %}
+
+      <div class="{{ bloco_classes }}">
+        <h3 class="secao-titulo-bloco">{{ secao.titulo }}</h3>
+
+        <div class="secao-corpo">
+          {% if secao.conteudo.startswith("Não foi") or secao.conteudo.startswith("Erro") %}
+            <p style="font-style:italic;color:#7a6040;text-align:center;padding:16px 0;">{{ secao.conteudo }}</p>
+          {% else %}
+            {% for paragrafo in secao.conteudo.split('\n') %}
+              {% if paragrafo.strip() %}<p>{{ paragrafo.strip() }}</p>{% endif %}
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        {% if secao.analise %}
+        <div class="caixa-analise-jornal">
+          {% if secao.analise.riscos %}
+          <div class="caixa caixa--riscos">
+            <span class="caixa-label">Riscos</span>
+            {{ secao.analise.riscos }}
+          </div>
+          {% endif %}
+          {% if secao.analise.sinais %}
+          <div class="caixa caixa--sinais">
+            <span class="caixa-label">Sinais</span>
+            {{ secao.analise.sinais }}
+          </div>
+          {% endif %}
+          {% if secao.analise.perspectiva %}
+          <div class="caixa caixa--especialista" style="grid-column: 1 / -1;">
+            <span class="caixa-label">Perspectiva Analítica</span>
+            {{ secao.analise.perspectiva }}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if secao.grafico %}
+        {% set ns.chart_id = ns.chart_id + 1 %}
+        <div class="chart-container">
+          <canvas id="chart-{{ ns.chart_id }}"></canvas>
+        </div>
+        <script>
+        (function() {
+          var d = {{ secao.grafico | tojson }};
+          var tipo = d.tipo || 'bar';
+          var paleta = ['#1A3A6B','#B31B1B','#1F6B3A','#C8922A','#5A1F6B','#2A6B8B','#6B3A1A'];
+          var cfg = { type: tipo, data: { labels: d.labels }, options: { responsive: true, maintainAspectRatio: true } };
+
+          if (tipo === 'line') {
+            cfg.data.datasets = [{ label: d.titulo, data: d.valores,
+              borderColor: paleta[0], backgroundColor: 'rgba(26,58,107,0.1)',
+              borderWidth: 2, tension: 0.3, fill: true }];
+          } else if (tipo === 'pie' || tipo === 'doughnut') {
+            cfg.data.datasets = [{ label: d.titulo, data: d.valores,
+              backgroundColor: paleta.slice(0, d.valores.length),
+              borderColor: '#f8f3e2', borderWidth: 2 }];
+            cfg.options.plugins = { legend: { display: true, position: 'bottom',
+              labels: { font: { size: 9, family: "'Playfair Display', serif" }, color: '#2a2010' } },
+              title: { display: true, text: d.titulo, color: '#1a1505', font: { size: 10, family: "'Playfair Display', serif" } } };
+          } else {
+            cfg.data.datasets = [{ label: d.titulo, data: d.valores,
+              backgroundColor: paleta.slice(0, d.valores.length),
+              borderColor: paleta.slice(0, d.valores.length).map(c => c + 'cc'),
+              borderWidth: 1 }];
+          }
+
+          if (!cfg.options.plugins) {
+            cfg.options.plugins = {
+              legend: { display: false },
+              title: { display: true, text: d.titulo, color: '#1a1505', font: { size: 10, family: "'Playfair Display', serif" } }
+            };
+          }
+          cfg.options.scales = tipo === 'pie' || tipo === 'doughnut' ? {} : {
+            y: { grid: { color: 'rgba(0,0,0,0.07)' }, ticks: { color: '#4a3f2a', font: { size: 9 } } },
+            x: { grid: { display: false }, ticks: { color: '#4a3f2a', font: { size: 9 } } }
+          };
+
+          new Chart(document.getElementById('chart-{{ ns.chart_id }}'), cfg);
+        })();
+        </script>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ═══ RODAPÉ ════════════════════════════════════════ -->
+  <footer class="rodape">
+    <div class="ornamento">— ✦ —</div>
+    <p>
+      Gerado automaticamente em <strong>{{ gerado_em }}</strong>
+      com base nos RSS feeds oficiais dos jornais listados.
+    </p>
+    <p>
+      Análise cruzada e perspectivas especializadas produzidas por inteligência artificial &mdash;
+      atualizado diariamente às 6h (horário de Brasília).
+    </p>
+    <p style="margin-top:4px;font-size:0.58rem;color:#7a6a4a;">
+      O conteúdo reflete as publicações mais recentes de cada veículo e não substitui a leitura das fontes originais.
+    </p>
+  </footer>
+
+</div>
 </body>
 </html>

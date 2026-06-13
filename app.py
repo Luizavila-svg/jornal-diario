@@ -17,11 +17,17 @@ scheduler.start()
 @app.route("/jornal")
 def jornal():
     try:
-        resumos, gerado_em, data_formatada = get_resumos_hoje()
+        resumos, destaques, gerado_em, data_formatada = get_resumos_hoje()
     except Exception as e:
         app.logger.exception(f"Erro ao gerar jornal: {e}")
         return "Erro ao gerar o jornal. Tente novamente em instantes.", 500
-    return render_template("jornal.html", resumos=resumos, gerado_em=gerado_em, data_formatada=data_formatada)
+    return render_template(
+        "jornal.html",
+        resumos=resumos,
+        destaques=destaques,
+        gerado_em=gerado_em,
+        data_formatada=data_formatada,
+    )
 
 
 if __name__ == "__main__":
