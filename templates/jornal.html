@@ -423,6 +423,8 @@
     O Globo &bull; Folha de S.Paulo &bull; Estadão &bull; The New York Times
   </p>
 
+  {% set ns = namespace(chart_id=0) %}
+
   <!-- ═══ MANCHETE DO DIA ════════════════════════════════ -->
   {% if destaques %}
   <section class="manchete-secao">
@@ -432,7 +434,6 @@
     </div>
 
     <div class="manchete-grade">
-      {% set ns = namespace(chart_id=0) %}
       {% for d in destaques %}
       <div class="destaque-col">
         <span class="destaque-numero">{{ loop.index }}</span>
