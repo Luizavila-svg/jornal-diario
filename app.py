@@ -1,8 +1,9 @@
 import os
+import threading
 from flask import Flask, render_template
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
-from jornal import get_resumos_hoje
+from jornal import get_resumos_hoje, _cache
 
 load_dotenv()
 
@@ -12,15 +13,22 @@ scheduler = BackgroundScheduler(timezone="America/Sao_Paulo")
 scheduler.add_job(get_resumos_hoje, "cron", hour=6, minute=0)
 scheduler.start()
 
+# Pré-gera o conteúdo em background ao iniciar para não travar a primeira visita
+threading.Thread(target=get_resumos_hoje, daemon=True).start()
+
 
 @app.route("/")
 @app.route("/jornal")
 def jornal():
+    if not _cache.get("resumos"):
+        return render_template("loading.html"), 202
+
     try:
         resumos, destaques, gerado_em, data_formatada = get_resumos_hoje()
     except Exception as e:
         app.logger.exception(f"Erro ao gerar jornal: {e}")
         return "Erro ao gerar o jornal. Tente novamente em instantes.", 500
+
     return render_template(
         "jornal.html",
         resumos=resumos,
