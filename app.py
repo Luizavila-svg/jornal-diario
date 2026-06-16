@@ -24,7 +24,7 @@ def jornal():
         return render_template("loading.html"), 202
 
     try:
-        resumos, destaques, gerado_em, data_formatada = get_resumos_hoje()
+        resumos, destaques, gerado_em, data_formatada, manchetes = get_resumos_hoje()
     except Exception as e:
         app.logger.exception(f"Erro ao gerar jornal: {e}")
         return "Erro ao gerar o jornal. Tente novamente em instantes.", 500
@@ -35,6 +35,7 @@ def jornal():
         destaques=destaques,
         gerado_em=gerado_em,
         data_formatada=data_formatada,
+        manchetes=manchetes,
     )
 
 

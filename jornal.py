@@ -8,7 +8,7 @@ from anthropic import Anthropic
 
 TZ_BR = ZoneInfo("America/Sao_Paulo")
 
-CACHE_VERSION = "v3"
+CACHE_VERSION = "v4"
 _cache: dict = {}
 
 FEEDS = {
@@ -164,22 +164,40 @@ def get_resumos_hoje():
     hoje_iso = hoje.isoformat()
 
     if (_cache.get("data") == hoje_iso and _cache.get("versao") == CACHE_VERSION):
-        return _cache["resumos"], _cache["destaques"], _cache["gerado_em"], data_formatada_pt(hoje)
+        return _cache["resumos"], _cache["destaques"], _cache["gerado_em"], data_formatada_pt(hoje), _cache.get("manchetes", {})
 
     # Busca todos os feeds primeiro (em paralelo)
     artigos_por_fonte = {}
+    manchetes_por_fonte = {}
 
     def fetch_feed(nome, config):
         try:
-            return nome, buscar_artigos(config["url"])
+            feed = feedparser.parse(config["url"])
+            artigos = []
+            manchetes = []
+            for entry in feed.entries[:20]:
+                titulo = _limpar_html(entry.get("title", ""))
+                resumo = _limpar_html(entry.get("summary", entry.get("description", "")))[:220]
+                if titulo:
+                    linha = f"• {titulo}"
+                    if resumo and resumo != titulo:
+                        linha += f": {resumo}"
+                    artigos.append(linha)
+                    if len(manchetes) < 6:
+                        manchetes.append({
+                            "titulo": titulo,
+                            "resumo": resumo if resumo != titulo else "",
+                        })
+            return nome, artigos, manchetes
         except Exception:
-            return nome, []
+            return nome, [], []
 
     with ThreadPoolExecutor(max_workers=4) as executor:
         futures = {executor.submit(fetch_feed, nome, config): nome for nome, config in FEEDS.items()}
         for future in as_completed(futures):
-            nome, artigos = future.result()
+            nome, artigos, manchetes = future.result()
             artigos_por_fonte[nome] = artigos
+            manchetes_por_fonte[nome] = manchetes
 
     # Gera resumos individuais + análise cruzada em paralelo
     def processar_feed(nome, config):
@@ -216,6 +234,7 @@ def get_resumos_hoje():
         "resumos": resumos,
         "destaques": destaques,
         "gerado_em": gerado_em,
+        "manchetes": manchetes_por_fonte,
     })
 
-    return resumos, destaques, gerado_em, data_formatada_pt(hoje)
+    return resumos, destaques, gerado_em, data_formatada_pt(hoje), manchetes_por_fonte

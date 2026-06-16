@@ -110,6 +110,91 @@
     }
 
     /* ═══════════════════════════════════════════════════
+       MANCHETES DE HOJE (capa dos jornais)
+    ═══════════════════════════════════════════════════ */
+    .capas-secao {
+      border-bottom: 3px solid #0d0b05;
+    }
+
+    .capas-cabecalho {
+      text-align: center;
+      padding: 12px 0 8px;
+      border-bottom: 1px solid #0d0b05;
+    }
+
+    .capas-grade {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .capa-col {
+      padding: 16px 18px 18px;
+      border-right: 1px solid #7a6a4a;
+    }
+
+    .capa-col:last-child { border-right: none; }
+
+    .capa-jornal-nome {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #0d0b05;
+      border-bottom: 2px solid #0d0b05;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .capa-lista {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .capa-item {
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(122,106,74,0.3);
+    }
+
+    .capa-item:last-child { border-bottom: none; }
+
+    .capa-numero {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 0.65rem;
+      color: #7a1010;
+      margin-right: 4px;
+    }
+
+    .capa-titulo {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 0.78rem;
+      line-height: 1.3;
+      color: #0d0b05;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .capa-resumo {
+      font-size: 0.72rem;
+      line-height: 1.5;
+      color: #4a3f2a;
+      display: block;
+      font-style: italic;
+    }
+
+    @media (max-width: 800px) {
+      .capas-grade { grid-template-columns: repeat(2, 1fr); }
+      .capa-col:nth-child(2) { border-right: none; }
+      .capa-col:nth-child(1),
+      .capa-col:nth-child(2) { border-bottom: 1px solid #7a6a4a; }
+    }
+
+    /* ═══════════════════════════════════════════════════
        MANCHETE DO DIA
     ═══════════════════════════════════════════════════ */
     .manchete-secao {
@@ -424,6 +509,31 @@
   </p>
 
   {% set ns = namespace(chart_id=0) %}
+
+  <!-- ═══ MANCHETES DE HOJE ════════════════════════════════ -->
+  {% if manchetes %}
+  <section class="capas-secao">
+    <div class="capas-cabecalho">
+      <span class="manchete-label">Primeira página</span>
+      <div class="manchete-titulo-secao">Manchetes de Hoje</div>
+    </div>
+    <div class="capas-grade">
+      {% for nome, headlines in manchetes.items() %}
+      <div class="capa-col">
+        <span class="capa-jornal-nome">{{ nome }}</span>
+        <ol class="capa-lista">
+          {% for h in headlines %}
+          <li class="capa-item">
+            <span class="capa-titulo"><span class="capa-numero">{{ loop.index }}.</span>{{ h.titulo }}</span>
+            {% if h.resumo %}<span class="capa-resumo">{{ h.resumo }}</span>{% endif %}
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
   <!-- ═══ MANCHETE DO DIA ════════════════════════════════ -->
   {% if destaques %}
